@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    outputs:
+      image: rpmlint:${GITHUB_SHA}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ianhchamberlain/rpmlint
+    - name: Test rpmlint --help
+      run: ./rpmlint --help
+    - name: Test rpmlint lint its own RPM
+      run: ./rpmlint rpmlint
