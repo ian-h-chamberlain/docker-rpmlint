@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+function abspath() {
+    echo "$(cd "$(dirname "$1")" || return; pwd)/$(basename "$1")"
+}
+
+function main() {
+    local INPUT_FILES=()
+
+    for arg in "$@"; do
+        shift
+        case $arg in
+            (-*)
+                set -- "$@" "$arg"
+                ;;
+            (*)
+                INPUT_FILES+=("$arg")
+                ;;
+        esac
+    done
+
+    local DOCKER_ARGS=()
+
+    for in_file in "${INPUT_FILES[@]}"; do
+        local FILE_PATH
+        FILE_PATH="$(abspath "$in_file")"
+
+        # Don't mount a nonexistent file/directory, otherwise docker creates a dir
+        if [[ -e "$in_file" ]]; then
+            DOCKER_ARGS+=(--volume "$FILE_PATH:$FILE_PATH")
+        fi
+
+        set -- "$@" "$in_file"
+    done
+
+    local CMD=(docker run --rm --workdir "$PWD" "${DOCKER_ARGS[@]}" rpmlint "$@")
+    "${CMD[@]}"
+}
+
+main "$@"
