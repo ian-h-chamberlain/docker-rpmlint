@@ -33,7 +33,7 @@ function main() {
         set -- "$@" "$in_file"
     done
 
-    local CMD=(docker run --rm --workdir "$PWD" "${DOCKER_ARGS[@]}" rpmlint "$@")
+    local CMD=(docker run --rm --workdir "$PWD" "${DOCKER_ARGS[@]}" ianhchamberlain/rpmlint "$@")
     "${CMD[@]}"
 }
 
